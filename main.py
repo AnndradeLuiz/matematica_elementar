@@ -5,6 +5,73 @@ import random
 def f(x, y):
     return x**2 + y**2
 
+class AlgoritmoGenetico:
+    def __init__(self, funcao, intervalo=(-10, 10), tamanho_pop=30, geracoes=1000, taxa_mutacao=0.1):
+        self.funcao = funcao
+        self.intervalo = intervalo
+        self.tamanho_pop = tamanho_pop
+        self.geracoes = geracoes
+        self.taxa_mutacao = taxa_mutacao
+
+    def criar_individuo(self):
+        x = random.uniform(self.intervalo[0], self.intervalo[1])
+        y = random.uniform(self.intervalo[0], self.intervalo[1])
+        return (x, y)
+
+    def fitness(self, ponto):
+        return -self.funcao(ponto[0], ponto[1])
+
+    def selecao(self, populacao):
+        populacao.sort(key=self.fitness, reverse=True)
+        return populacao[:2]
+
+    def crossover(self, pai, mae):
+        alpha = random.random()
+        x_filho = alpha * pai[0] + (1 - alpha) * mae[0]
+        y_filho = alpha * pai[1] + (1 - alpha) * mae[1]
+        return (x_filho, y_filho)
+
+    def mutacao(self, individuo):
+        if random.random() < self.taxa_mutacao:
+            x_mutado = individuo[0] + random.uniform(-1, 1)
+            y_mutado = individuo[1] + random.uniform(-1, 1)
+            x_mutado = max(min(x_mutado, self.intervalo[1]), self.intervalo[0])
+            y_mutado = max(min(y_mutado, self.intervalo[1]), self.intervalo[0])
+            return (x_mutado, y_mutado)
+        return individuo
+
+    def executar(self):
+        populacao = [self.criar_individuo() for _ in range(self.tamanho_pop)]
+        melhor = min(populacao, key=lambda p: self.funcao(p[0], p[1]))
+        trajetoria = [melhor]
+        valores_f = [self.funcao(melhor[0], melhor[1])]
+
+        for geracao in range(self.geracoes):
+            nova_populacao = []
+            pais = self.selecao(populacao)
+
+            while len(nova_populacao) < self.tamanho_pop:
+                filho = self.crossover(pais[0], pais[1])
+                filho = self.mutacao(filho)
+                nova_populacao.append(filho)
+
+            populacao = nova_populacao
+            candidato = min(populacao, key=lambda p: self.funcao(p[0], p[1]))
+
+            if self.funcao(candidato[0], candidato[1]) < self.funcao(melhor[0], melhor[1]):
+                melhor = candidato
+                trajetoria.append(melhor)
+                valores_f.append(self.funcao(melhor[0], melhor[1]))
+
+            if self.funcao(melhor[0], melhor[1]) <= 1e-3:
+                print(f"Critério de erro atingido na geração {geracao}")
+                break
+
+        print(f"Melhor ponto encontrado: {melhor}")
+        print(f"Total de gerações: {geracao + 1}")
+        plotar_graficos([], melhor, (0, 0), None, tipo=0, trajetoria=trajetoria, valores_f=valores_f)
+        return melhor, geracao + 1, trajetoria
+
 class Gerar_Pontos:
     def __init__(self):
         self.pontos_xy = []
@@ -175,27 +242,23 @@ class Calcular_Funcao(Gerar_Pontos):
         else:
             print("Escolha inválida.")
 
-
-def lista_nao_vazia_e_com_tuplas(lista):
-    return isinstance(lista, list) and len(lista) > 0 and isinstance(lista[0], tuple)
-
-
 def plotar_graficos(pontos, menor_p, intercept_y, raizes, tipo, trajetoria, valores_f):
-    fig1, ax1 = plt.subplots()
-    x, y = zip(*pontos)
-    cor = 'b' if tipo == 1 else 'm'
-    ax1.plot(x, y, 'o', color=cor, label='Pontos gerados')
-    ax1.plot(0, 0, 'o', color='gray', label='Origem (0,0)')
-    ax1.plot(menor_p[0], menor_p[1], 'o', color='c', label='Melhor ponto')
-    ax1.plot(intercept_y[0], intercept_y[1], 'o', color='k', label='Intercepto em y')
+    if pontos:
+        fig1, ax1 = plt.subplots()
+        x, y = zip(*pontos)
+        cor = 'b' if tipo == 1 else 'm'
+        ax1.plot(x, y, 'o', color=cor, label='Pontos gerados')
+        ax1.plot(0, 0, 'o', color='gray', label='Origem (0,0)')
+        ax1.plot(menor_p[0], menor_p[1], 'o', color='c', label='Melhor ponto')
+        ax1.plot(intercept_y[0], intercept_y[1], 'o', color='k', label='Intercepto em y')
 
-    if raizes:
-        for i, raiz in enumerate(raizes):
-            ax1.plot(raiz[0], raiz[1], 'o', color='y', label=f"Raiz {i+1}")
+        if raizes:
+            for i, raiz in enumerate(raizes):
+                ax1.plot(raiz[0], raiz[1], 'o', color='y', label=f"Raiz {i+1}")
 
-    ax1.set_title("Gráfico dos Pontos")
-    ax1.legend()
-    ax1.grid(True)
+        ax1.set_title("Gráfico dos Pontos")
+        ax1.legend()
+        ax1.grid(True)
 
     if trajetoria:
         fig2, ax2 = plt.subplots()
@@ -233,6 +296,10 @@ if __name__ == '__main__':
                 break
             elif opcao == 1 or opcao == 2:
                 escolha.calcular(opcao)
+                usar_genetico = input("Deseja usar o algoritmo genético? [s/n]: ").lower() == 's'
+                if usar_genetico:
+                    ag = AlgoritmoGenetico(funcao=f)
+                    menor, iteracoes, trajetoria = ag.executar()
             else:
                 print("Opção Inválida")
         except ValueError:

@@ -2,6 +2,9 @@ import math
 import matplotlib.pyplot as plt
 import random
 
+def f(x, y):
+    return x**2 + y**2
+
 class Gerar_Pontos:
     def __init__(self):
         self.pontos_xy = []
@@ -22,7 +25,7 @@ class Gerar_Pontos:
         for ponto in self.pontos_xy:
             print(ponto)
 
-        self.menor_p, self.total_iter, self.trajetoria = self.buscar_melhor_ponto_origem(funcao_segundo_grau=False)
+        self.menor_p, self.total_iter, self.trajetoria, self.valores_f = self.buscar_melhor_ponto_origem(funcao_segundo_grau=False)
         print(f"Total de iterações (1º grau): {self.total_iter}")
 
         return self.pontos_xy, self.intercept_y, self.menor_p
@@ -48,7 +51,7 @@ class Gerar_Pontos:
         yv = -delta / (4*a)
         self.menor_p = (xv, yv)
 
-        self.menor_p, self.total_iter, self.trajetoria = self.buscar_melhor_ponto_origem(funcao_segundo_grau=True)
+        self.menor_p, self.total_iter, self.trajetoria, self.valores_f = self.buscar_melhor_ponto_origem(funcao_segundo_grau=True)
         print(f"Total de iterações (2º grau): {self.total_iter}")
 
         if delta > 0:
@@ -65,23 +68,23 @@ class Gerar_Pontos:
 
     def buscar_melhor_ponto_origem(self, iter_max=100000, erro_aceitavel=1e-3, funcao_segundo_grau=False):
         populacao = []
-        intervalo_inicial = 10.0
-        intervalo = intervalo_inicial
-        iteracoes_realizadas = 0
-        fator_reducao_intervalo = 0.97
+        intervalo = 10.0
+        fator_reducao = 0.97
         sem_melhoria = 0
-        max_sem_melhoria = 5000 
+        max_sem_melhoria = 5000
+        melhor_iter = 0
+        valores_f = []
 
         for _ in range(10):
             x = random.uniform(-intervalo, intervalo)
             y = (self.a * x**2 + self.b * x + self.c) if funcao_segundo_grau else (self.a * x + self.b)
             populacao.append((x, y))
 
-        melhor_ponto = min(populacao, key=lambda p: math.hypot(p[0], p[1]))
+        melhor_ponto = min(populacao, key=lambda p: f(p[0], p[1]))
         trajetoria = [melhor_ponto]
+        valores_f.append(f(melhor_ponto[0], melhor_ponto[1]))
 
-        while iteracoes_realizadas < iter_max:
-            iteracoes_realizadas += 1
+        for i in range(iter_max):
             nova_populacao = []
 
             for _ in range(9):
@@ -92,18 +95,19 @@ class Gerar_Pontos:
             nova_populacao.append(melhor_ponto)
 
             populacao = [
-                novo if math.hypot(novo[0], novo[1]) < math.hypot(antigo[0], antigo[1]) else antigo
+                novo if f(*novo) < f(*antigo) else antigo
                 for antigo, novo in zip(populacao, nova_populacao)
             ]
 
-            novo_melhor = min(populacao, key=lambda p: math.hypot(p[0], p[1]))
+            novo_melhor = min(populacao, key=lambda p: f(p[0], p[1]))
 
-            if math.hypot(novo_melhor[0], novo_melhor[1]) < math.hypot(melhor_ponto[0], melhor_ponto[1]):
+            if f(*novo_melhor) < f(*melhor_ponto):
                 melhor_ponto = novo_melhor
-                intervalo = max(intervalo * fator_reducao_intervalo, 1e-5)
-                melhor_iter = iteracoes_realizadas
+                intervalo = max(intervalo * fator_reducao, 1e-5)
+                melhor_iter = i + 1
                 sem_melhoria = 0
                 trajetoria.append(melhor_ponto)
+                valores_f.append(f(melhor_ponto[0], melhor_ponto[1]))
             else:
                 sem_melhoria += 1
 
@@ -111,23 +115,21 @@ class Gerar_Pontos:
                 print(f"Parando por estagnação após {sem_melhoria} iterações.")
                 break
 
-            if iteracoes_realizadas % 1000 == 0:
-                dist = math.hypot(melhor_ponto[0], melhor_ponto[1])
-                print(f"Iteração {iteracoes_realizadas}: Melhor ponto = {melhor_ponto}, distância = {dist:.6f}", flush=True)
-
-            if math.hypot(melhor_ponto[0], melhor_ponto[1]) <= erro_aceitavel:
-                print(f"Critério de erro atingido na iteração {iteracoes_realizadas}", flush=True)
+            if f(*melhor_ponto) <= erro_aceitavel:
+                print(f"Critério de erro atingido na iteração {i+1}")
                 break
 
+            if (i+1) % 1000 == 0:
+                print(f"Iteração {i+1}: Melhor ponto = {melhor_ponto}, f(x,y) = {f(*melhor_ponto):.6f}")
+
         print(f"Melhor ponto encontrado na iteração {melhor_iter}")
-        print(f"Total de iterações realizadas: {iteracoes_realizadas}", flush=True)
-        return melhor_ponto, iteracoes_realizadas, trajetoria
+        print(f"Total de iterações realizadas: {i+1}")
+        return melhor_ponto, i+1, trajetoria, valores_f
 
 
 class Calcular_Funcao(Gerar_Pontos):
     def __init__(self):
         super().__init__()
-        self.pontos_xy = []
 
     def calcular(self, escolha):
         if escolha == 1:
@@ -143,9 +145,9 @@ class Calcular_Funcao(Gerar_Pontos):
                 pontos, intercept_y, menor_p = self.gerar_pts_1_grau(a, b)
 
                 print(f"Função gerada: y = {a}x + {b}")
-                print(f"Menor ponto otimizado: {menor_p}")
+                print(f"Menor ponto encontrado: {menor_p}")
 
-                plotar_gráfico(pontos, menor_p, intercept_y, None, tipo, self.trajetoria)
+                plotar_graficos(pontos, menor_p, intercept_y, None, tipo, self.trajetoria, self.valores_f)
 
             except ValueError:
                 print("Entrada inválida. Digite apenas números inteiros.")
@@ -164,9 +166,9 @@ class Calcular_Funcao(Gerar_Pontos):
                 pontos, menor_p, intercept_y, raizes = self.gerar_pts_2_grau(a, b, c)
 
                 print(f"Função gerada: y = {a}x² + {b}x + {c}")
-                print(f"Vértice ajustado (mínimo ou máximo): {menor_p}")
+                print(f"Menor ponto encontrado: {menor_p}")
 
-                plotar_gráfico(pontos, menor_p, intercept_y, raizes, tipo, self.trajetoria)
+                plotar_graficos(pontos, menor_p, intercept_y, raizes, tipo, self.trajetoria, self.valores_f)
 
             except ValueError:
                 print("Entrada inválida. Digite apenas números inteiros.")
@@ -178,67 +180,41 @@ def lista_nao_vazia_e_com_tuplas(lista):
     return isinstance(lista, list) and len(lista) > 0 and isinstance(lista[0], tuple)
 
 
-def plotar_gráfico(pontos, menor_p, intercept_y, raizes, tipo, trajetoria=None):
-    import matplotlib.pyplot as plt
-
-    # ---------- Gráfico 1: Pontos e ponto mais próximo ----------
+def plotar_graficos(pontos, menor_p, intercept_y, raizes, tipo, trajetoria, valores_f):
     fig1, ax1 = plt.subplots()
     x, y = zip(*pontos)
+    cor = 'b' if tipo == 1 else 'm'
+    ax1.plot(x, y, 'o', color=cor, label='Pontos gerados')
+    ax1.plot(0, 0, 'o', color='gray', label='Origem (0,0)')
+    ax1.plot(menor_p[0], menor_p[1], 'o', color='c', label='Melhor ponto')
+    ax1.plot(intercept_y[0], intercept_y[1], 'o', color='k', label='Intercepto em y')
 
-    if tipo == 1:
-        ax1.plot(x, y, marker='o', linestyle='None', color='b', label='Função do 1° Grau')
-    elif tipo == 2:
-        ax1.plot(x, y, marker='o', linestyle='None', color='m', label="Função 2º grau")
-
-    if raizes is not None and lista_nao_vazia_e_com_tuplas(raizes):
+    if raizes:
         for i, raiz in enumerate(raizes):
-            ax1.plot(raiz[0], raiz[1], marker='o', color='y', linestyle='None',
-                     label=f"Raiz {i+1} ({raiz[0]:.2f}, {raiz[1]:.2f})")
+            ax1.plot(raiz[0], raiz[1], 'o', color='y', label=f"Raiz {i+1}")
 
-    ax1.plot(menor_p[0], menor_p[1], marker='o', color='c', linestyle='None',
-             label=f"Menor ponto ({menor_p[0]:.2f}, {menor_p[1]:.2f})")
-
-    ax1.plot(intercept_y[0], intercept_y[1], marker='o', color='k', linestyle='None',
-             label=f"Intercepto em y ({intercept_y[0]}, {intercept_y[1]})")
-
-    ax1.spines['left'].set_position('zero')
-    ax1.spines['bottom'].set_position('zero')
-    ax1.spines['right'].set_color('none')
-    ax1.spines['top'].set_color('none')
-
-    ax1.set_xlabel('x', labelpad=15)
-    ax1.set_ylabel('y', labelpad=15, rotation=0)
-    ax1.xaxis.set_label_coords(0.97, 0.48)
-    ax1.yaxis.set_label_coords(0.48, 0.97)
-
-    ax1.set_title("Gráfico dos Pontos Gerados")
+    ax1.set_title("Gráfico dos Pontos")
     ax1.legend()
     ax1.grid(True)
 
-    # ---------- Gráfico 2: Trajetória de Otimização ----------
     if trajetoria:
         fig2, ax2 = plt.subplots()
-        x_traj, y_traj = zip(*trajetoria)
-        ax2.plot(x_traj, y_traj, linestyle='--', color='orange', linewidth=2, marker='x',
-                label="Trajetória de otimização")
-
-        ax2.plot(0, 0, marker='o', color='gray', label="Origem (0,0)")
-        ax2.plot(menor_p[0], menor_p[1], marker='o', color='c',
-                label=f"Melhor ponto final ({menor_p[0]:.2f}, {menor_p[1]:.2f})")
-
-        ax2.spines['left'].set_position('zero')
-        ax2.spines['bottom'].set_position('zero')
-        ax2.spines['right'].set_color('none')
-        ax2.spines['top'].set_color('none')
-
-        ax2.set_xlabel('x', labelpad=15)
-        ax2.set_ylabel('y', labelpad=15, rotation=0)
-        ax2.xaxis.set_label_coords(0.97, 0.48)
-        ax2.yaxis.set_label_coords(0.48, 0.97)
-
-        ax2.set_title("Trajetória da Otimização")
+        x_t, y_t = zip(*trajetoria)
+        ax2.plot(x_t, y_t, linestyle='--', color='orange', marker='x', label='Trajetória')
+        ax2.plot(0, 0, 'o', color='gray', label='Origem (0,0)')
+        ax2.plot(menor_p[0], menor_p[1], 'o', color='c', label='Melhor ponto')
+        ax2.set_title("Trajetória de Otimização")
         ax2.legend()
         ax2.grid(True)
+
+    if valores_f:
+        fig3, ax3 = plt.subplots()
+        ax3.plot(valores_f, color='purple')
+        ax3.set_title("Evolução da Função f(x,y)")
+        ax3.set_xlabel("Iterações")
+        ax3.set_ylabel("f(x,y)")
+        ax3.set_yscale('log')
+        ax3.grid(True)
 
     plt.show()
 

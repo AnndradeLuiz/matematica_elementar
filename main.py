@@ -2,11 +2,14 @@ import math
 import matplotlib.pyplot as plt
 import random
 
+
 def f(x, y):
     return x**2 + y**2
 
+
 class AlgoritmoGenetico:
-    def __init__(self, funcao, intervalo=(-10, 10), tamanho_pop=30, geracoes=1000, taxa_mutacao=0.1):
+    def __init__(self, funcao, intervalo=(-10, 10),
+                tamanho_pop=30, geracoes=1000, taxa_mutacao=0.1):
         self.funcao = funcao
         self.intervalo = intervalo
         self.tamanho_pop = tamanho_pop
@@ -58,7 +61,11 @@ class AlgoritmoGenetico:
             populacao = nova_populacao
             candidato = min(populacao, key=lambda p: self.funcao(p[0], p[1]))
 
-            if self.funcao(candidato[0], candidato[1]) < self.funcao(melhor[0], melhor[1]):
+            if self.funcao(
+                    candidato[0],
+                    candidato[1]) < self.funcao(
+                    melhor[0],
+                    melhor[1]):
                 melhor = candidato
                 trajetoria.append(melhor)
                 valores_f.append(self.funcao(melhor[0], melhor[1]))
@@ -69,8 +76,10 @@ class AlgoritmoGenetico:
 
         print(f"Melhor ponto encontrado: {melhor}")
         print(f"Total de gerações: {geracao + 1}")
-        plotar_graficos([], melhor, (0, 0), None, tipo=0, trajetoria=trajetoria, valores_f=valores_f)
+        plotar_graficos([], melhor, (0, 0), None, tipo=0,
+                        trajetoria=trajetoria, valores_f=valores_f)
         return melhor, geracao + 1, trajetoria
+
 
 class Gerar_Pontos:
     def __init__(self):
@@ -92,7 +101,8 @@ class Gerar_Pontos:
         for ponto in self.pontos_xy:
             print(ponto)
 
-        self.menor_p, self.total_iter, self.trajetoria, self.valores_f = self.buscar_melhor_ponto_origem(funcao_segundo_grau=False)
+        self.menor_p, self.total_iter, self.trajetoria, self.valores_f = self.buscar_melhor_ponto_origem(
+            funcao_segundo_grau=False)
         print(f"Total de iterações (1º grau): {self.total_iter}")
 
         return self.pontos_xy, self.intercept_y, self.menor_p
@@ -113,27 +123,32 @@ class Gerar_Pontos:
         for ponto in self.pontos_xy:
             print(ponto)
 
-        delta = (b**2) - (4*a*c)
-        xv = -b / (2*a)
-        yv = -delta / (4*a)
+        delta = (b**2) - (4 * a * c)
+        xv = -b / (2 * a)
+        yv = -delta / (4 * a)
         self.menor_p = (xv, yv)
 
-        self.menor_p, self.total_iter, self.trajetoria, self.valores_f = self.buscar_melhor_ponto_origem(funcao_segundo_grau=True)
+        self.menor_p, self.total_iter, self.trajetoria, self.valores_f = self.buscar_melhor_ponto_origem(
+            funcao_segundo_grau=True)
         print(f"Total de iterações (2º grau): {self.total_iter}")
 
         if delta > 0:
-            x1 = ((-b) + math.sqrt(delta)) / (2*a)
-            x2 = ((-b) - math.sqrt(delta)) / (2*a)
+            x1 = ((-b) + math.sqrt(delta)) / (2 * a)
+            x2 = ((-b) - math.sqrt(delta)) / (2 * a)
             raizes = [(x1, 0), (x2, 0)]
         elif delta == 0:
-            x = -b / (2*a)
+            x = -b / (2 * a)
             raizes = [(x, 0)]
         else:
             raizes = []
 
         return self.pontos_xy, self.menor_p, self.intercept_y, raizes
 
-    def buscar_melhor_ponto_origem(self, iter_max=100000, erro_aceitavel=1e-3, funcao_segundo_grau=False):
+    def buscar_melhor_ponto_origem(
+            self,
+            iter_max=100000,
+            erro_aceitavel=1e-3,
+            funcao_segundo_grau=False):
         populacao = []
         intervalo = 10.0
         fator_reducao = 0.97
@@ -144,7 +159,15 @@ class Gerar_Pontos:
 
         for _ in range(10):
             x = random.uniform(-intervalo, intervalo)
-            y = (self.a * x**2 + self.b * x + self.c) if funcao_segundo_grau else (self.a * x + self.b)
+            y = (
+                self.a *
+                x**2 +
+                self.b *
+                x +
+                self.c) if funcao_segundo_grau else (
+                self.a *
+                x +
+                self.b)
             populacao.append((x, y))
 
         melhor_ponto = min(populacao, key=lambda p: f(p[0], p[1]))
@@ -155,8 +178,18 @@ class Gerar_Pontos:
             nova_populacao = []
 
             for _ in range(9):
-                x = random.uniform(melhor_ponto[0] - intervalo, melhor_ponto[0] + intervalo)
-                y = (self.a * x**2 + self.b * x + self.c) if funcao_segundo_grau else (self.a * x + self.b)
+                x = random.uniform(
+                    melhor_ponto[0] - intervalo,
+                    melhor_ponto[0] + intervalo)
+                y = (
+                    self.a *
+                    x**2 +
+                    self.b *
+                    x +
+                    self.c) if funcao_segundo_grau else (
+                    self.a *
+                    x +
+                    self.b)
                 nova_populacao.append((x, y))
 
             nova_populacao.append(melhor_ponto)
@@ -183,15 +216,18 @@ class Gerar_Pontos:
                 break
 
             if f(*melhor_ponto) <= erro_aceitavel:
-                print(f"Critério de erro atingido na iteração {i+1}")
+                print(f"Critério de erro atingido na iteração {i + 1}")
                 break
 
-            if (i+1) % 1000 == 0:
-                print(f"Iteração {i+1}: Melhor ponto = {melhor_ponto}, f(x,y) = {f(*melhor_ponto):.6f}")
+            if (i + 1) % 1000 == 0:
+                print(
+                    f"Iteração {i +
+                                1}: Melhor ponto = {melhor_ponto}, f(x,y) = {f(*
+                                                                                melhor_ponto):.6f}")
 
         print(f"Melhor ponto encontrado na iteração {melhor_iter}")
-        print(f"Total de iterações realizadas: {i+1}")
-        return melhor_ponto, i+1, trajetoria, valores_f
+        print(f"Total de iterações realizadas: {i + 1}")
+        return melhor_ponto, i + 1, trajetoria, valores_f
 
 
 class Calcular_Funcao(Gerar_Pontos):
@@ -205,7 +241,8 @@ class Calcular_Funcao(Gerar_Pontos):
             try:
                 a = int(input("Digite o valor de a: "))
                 if a == 0:
-                    print("O valor de 'a' não pode ser zero para uma função do 1º grau.")
+                    print(
+                        "O valor de 'a' não pode ser zero para uma função do 1º grau.")
                     return
                 b = int(input("Digite o valor de b: "))
 
@@ -214,7 +251,14 @@ class Calcular_Funcao(Gerar_Pontos):
                 print(f"Função gerada: y = {a}x + {b}")
                 print(f"Menor ponto encontrado: {menor_p}")
 
-                plotar_graficos(pontos, menor_p, intercept_y, None, tipo, self.trajetoria, self.valores_f)
+                plotar_graficos(
+                    pontos,
+                    menor_p,
+                    intercept_y,
+                    None,
+                    tipo,
+                    self.trajetoria,
+                    self.valores_f)
 
             except ValueError:
                 print("Entrada inválida. Digite apenas números inteiros.")
@@ -225,24 +269,41 @@ class Calcular_Funcao(Gerar_Pontos):
             try:
                 a = int(input("Digite o valor de a: "))
                 if a == 0:
-                    print("O valor de 'a' não pode ser zero para uma função do 2º grau.")
+                    print(
+                        "O valor de 'a' não pode ser zero para uma função do 2º grau.")
                     return
                 b = int(input("Digite o valor de b: "))
                 c = int(input("Digite o valor de c: "))
 
-                pontos, menor_p, intercept_y, raizes = self.gerar_pts_2_grau(a, b, c)
+                pontos, menor_p, intercept_y, raizes = self.gerar_pts_2_grau(
+                    a, b, c)
 
                 print(f"Função gerada: y = {a}x² + {b}x + {c}")
                 print(f"Menor ponto encontrado: {menor_p}")
 
-                plotar_graficos(pontos, menor_p, intercept_y, raizes, tipo, self.trajetoria, self.valores_f)
+                plotar_graficos(
+                    pontos,
+                    menor_p,
+                    intercept_y,
+                    raizes,
+                    tipo,
+                    self.trajetoria,
+                    self.valores_f)
 
             except ValueError:
                 print("Entrada inválida. Digite apenas números inteiros.")
         else:
             print("Escolha inválida.")
 
-def plotar_graficos(pontos, menor_p, intercept_y, raizes, tipo, trajetoria, valores_f):
+
+def plotar_graficos(
+        pontos,
+        menor_p,
+        intercept_y,
+        raizes,
+        tipo,
+        trajetoria,
+        valores_f):
     if pontos:
         fig1, ax1 = plt.subplots()
         x, y = zip(*pontos)
@@ -250,11 +311,28 @@ def plotar_graficos(pontos, menor_p, intercept_y, raizes, tipo, trajetoria, valo
         ax1.plot(x, y, 'o', color=cor, label='Pontos gerados')
         ax1.plot(0, 0, 'o', color='gray', label='Origem (0,0)')
         ax1.plot(menor_p[0], menor_p[1], 'o', color='c', label='Melhor ponto')
-        ax1.plot(intercept_y[0], intercept_y[1], 'o', color='k', label='Intercepto em y')
+        ax1.plot(
+            intercept_y[0],
+            intercept_y[1],
+            'o',
+            color='k',
+            label='Intercepto em y')
+
+        plt.axhline(0, color='black', linewidth=1)
+        plt.axvline(0, color='black', linewidth=1)
+        plt.xlabel("Eixo X")
+        plt.ylabel("Eixo Y")
 
         if raizes:
             for i, raiz in enumerate(raizes):
-                ax1.plot(raiz[0], raiz[1], 'o', color='y', label=f"Raiz {i+1}")
+                ax1.plot(
+                    raiz[0],
+                    raiz[1],
+                    'o',
+                    color='y',
+                    label=f"Raiz {
+                        i + 1}"
+                        )
 
         ax1.set_title("Gráfico dos Pontos")
         ax1.legend()
@@ -263,7 +341,13 @@ def plotar_graficos(pontos, menor_p, intercept_y, raizes, tipo, trajetoria, valo
     if trajetoria:
         fig2, ax2 = plt.subplots()
         x_t, y_t = zip(*trajetoria)
-        ax2.plot(x_t, y_t, linestyle='--', color='orange', marker='x', label='Trajetória')
+        ax2.plot(
+            x_t,
+            y_t,
+            linestyle='--',
+            color='orange',
+            marker='x',
+            label='Trajetória')
         ax2.plot(0, 0, 'o', color='gray', label='Origem (0,0)')
         ax2.plot(menor_p[0], menor_p[1], 'o', color='c', label='Melhor ponto')
         ax2.set_title("Trajetória de Otimização")
@@ -281,6 +365,7 @@ def plotar_graficos(pontos, menor_p, intercept_y, raizes, tipo, trajetoria, valo
 
     plt.show()
 
+
 if __name__ == '__main__':
     escolha = Calcular_Funcao()
     while True:
@@ -296,7 +381,8 @@ if __name__ == '__main__':
                 break
             elif opcao == 1 or opcao == 2:
                 escolha.calcular(opcao)
-                usar_genetico = input("Deseja usar o algoritmo genético? [s/n]: ").lower() == 's'
+                usar_genetico = input(
+                    "Deseja usar o algoritmo genético? [s/n]: ").lower() == 's'
                 if usar_genetico:
                     ag = AlgoritmoGenetico(funcao=f)
                     menor, iteracoes, trajetoria = ag.executar()

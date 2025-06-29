@@ -10,4 +10,5 @@ Instalar dependências:
 
 ### :wrench: Executando
 Use o comando `python main.py`
-Você poderá escolher entre otimizar uma função do 1º grau, 2º grau ou usar o algoritmo genético. 
+Você poderá escolher entre otimizar uma função do 1º Grau ou do 2° Grau.
+Além disso, você pode aplicar o algoritmo genético nessa função, buscando o seu melhor ponto.

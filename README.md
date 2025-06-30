@@ -3,9 +3,9 @@ Este projeto implementa algoritmos de busca estocástica para encontrar o ponto 
 🔹 Busca local adaptativa (estilo Simulated Annealing)<br>
 🔹 Algoritmo Genético (opcional)
 ## :computer: Como Rodar Localmente
-:pencil2: Pré-requisitos
-Python 3.7+
-Instalar dependências:
+:pencil2: Pré-requisitos  
+Python 3.7+  
+Instalar dependências:  
 `pip install -y requirements.txt`
 
 ### :wrench: Executando

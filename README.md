@@ -3,11 +3,11 @@ Este projeto implementa algoritmos de busca estocástica para encontrar o ponto 
 🔹 Busca local adaptativa (estilo Simulated Annealing)<br>
 🔹 Algoritmo Genético (opcional)
 ## :computer: Como Rodar Localmente
-:pencil2: Pré-requisitos  
+:pencil2: Pré-Requisitos:  
 Python 3.7+  
 Instalar dependências:  
 `pip install -y requirements.txt`
 
 ### :wrench: Executando
 Use o comando `python main.py`
-Você poderá escolher entre otimizar uma função do 1º grau, 2º grau ou usar o algoritmo genético. 
+Você poderá escolher entre otimizar uma função do 1º grau, 2º grau, posteriormente usar ou não o algoritmo genético. 

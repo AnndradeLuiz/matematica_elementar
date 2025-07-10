@@ -220,10 +220,10 @@ class Gerar_Pontos:
                 break
 
             if (i + 1) % 1000 == 0:
-                print(
-                    f"Iteração {i +
+                print(f"Iteração {i +
                                 1}: Melhor ponto = {melhor_ponto}, f(x,y) = {f(*
-                                                                                melhor_ponto):.6f}")
+                                                                                melhor_ponto):.6f}"
+                                                                                )
 
         print(f"Melhor ponto encontrado na iteração {melhor_iter}")
         print(f"Total de iterações realizadas: {i + 1}")
@@ -310,7 +310,14 @@ def plotar_graficos(
         cor = 'b' if tipo == 1 else 'm'
         ax1.plot(x, y, 'o', color=cor, label='Pontos gerados')
         ax1.plot(0, 0, 'o', color='gray', label='Origem (0,0)')
-        ax1.plot(menor_p[0], menor_p[1], 'o', color='c', label=f'Melhor ponto{menor_p[0], menor_p[1]}')
+        ax1.plot(
+            menor_p[0],
+            menor_p[1],
+            'o',
+            color='c',
+            label=f'Melhor ponto{
+                menor_p[0],
+                menor_p[1]}')
         ax1.plot(
             intercept_y[0],
             intercept_y[1],
@@ -332,7 +339,7 @@ def plotar_graficos(
                     color='y',
                     label=f"Raiz {
                         i + 1}"
-                        )
+                )
 
         ax1.set_title("Gráfico dos Pontos")
         ax1.legend()
@@ -349,7 +356,15 @@ def plotar_graficos(
             marker='x',
             label='Trajetória')
         ax2.plot(0, 0, 'o', color='gray', label='Origem (0,0)')
-        ax2.plot(menor_p[0], menor_p[1], 'o', color='c', label=f'Melhor ponto{menor_p[0], menor_p[1]}')
+        ax2.plot(
+            menor_p[0],
+            menor_p[1],
+            'o',
+            color='c',
+            label=f'Melhor ponto{
+                menor_p[0],
+                menor_p[1]}'
+                )
         ax2.set_title("Trajetória de Otimização")
         ax2.legend()
         ax2.grid(True)

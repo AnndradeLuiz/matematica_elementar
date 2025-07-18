@@ -270,7 +270,11 @@ class Calcular_Funcao(Gerar_Pontos):
                 a = int(input("Digite o valor de a: "))
                 if a == 0:
                     print(
-                        "O valor de 'a' não pode ser zero para uma função do 2º grau.")
+                        "A função possui uma raiz real.")
+                    return
+                if a < 0:
+                    print(
+                        "Essa função não possui raízes reais")
                     return
                 b = int(input("Digite o valor de b: "))
                 c = int(input("Digite o valor de c: "))
@@ -317,13 +321,15 @@ def plotar_graficos(
             color='c',
             label=f'Melhor ponto{
                 menor_p[0],
-                menor_p[1]}')
+                menor_p[1]}'
+                )
         ax1.plot(
             intercept_y[0],
             intercept_y[1],
             'o',
             color='k',
-            label='Intercepto em y')
+            label='Intercepto em y'
+            )
 
         plt.axhline(0, color='black', linewidth=1)
         plt.axvline(0, color='black', linewidth=1)
